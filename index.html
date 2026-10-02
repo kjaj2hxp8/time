@@ -11,11 +11,17 @@ html,body{
   background:#090909;color:#eee;
   font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
   font-weight:300;
+  overflow:hidden;
 }
-body{display:grid;place-items:center}
-.wrap{text-align:center}
+.wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  height:100%;
+  justify-content:space-between;
+  padding:40px 20px;
+}
 .date{
-  margin-bottom:24px;
   font-size:13px;
   color:#777;
   letter-spacing:.04em;
@@ -37,47 +43,102 @@ body{display:grid;place-items:center}
   color:#888;
 }
 .info span{color:#eee}
+
+.ring{
+  position:relative;
+  width:120px;height:120px;
+  margin:32px 0;
+}
+.ring svg{
+  width:120px;height:120px;
+  transform:rotate(-90deg);
+}
+.ring circle{
+  fill:none;
+  stroke:#444;
+  stroke-width:4;
+}
+.ring .progress{
+  fill:none;
+  stroke:#eee;
+  stroke-width:4;
+  stroke-linecap:round;
+  transition:stroke-dashoffset .6s linear;
+}
+.progress-percent{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:22px;
+  font-weight:300;
+  color:#eee;
+  letter-spacing:-.04em;
+  line-height:1;
+}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <div class="date">2 Oct 2026 — 11 Oct 2026 <span id="present"> — 2 Oct 2026</span></div>
+  <div class="date">2 Oct 2026 — 11 Oct 2026 <span id="present"></span></div>
   <div class="days" id="days"></div>
+  <div class="ring">
+    <svg>
+      <circle cx="60" cy="60" r="54"></circle>
+      <circle class="progress" cx="60" cy="60" r="54"></circle>
+    </svg>
+    <div class="progress-percent" id="progress-percent">10%</div>
+  </div>
   <div class="info">
-    <span id="percent">10%</span> · <span id="left">9 days left</span>
+    <span id="left">9 days left</span>
   </div>
 </main>
 
 <script>
-const start = new Date(2026,9,2);
+const start = new Date(2026, 9, 2);
 const total = 10;
 const days = document.getElementById("days");
-const percent = document.getElementById("percent");
 const left = document.getElementById("left");
+const progressCircle = document.querySelector(".progress");
+const progressPercent = document.getElementById("progress-percent");
+const presentEl = document.getElementById("present");
+const circumference = 2 * Math.PI * 54;
 
-for(let i=0;i<total;i++){
-  const c=document.createElement("div");
-  c.className="day";
-  c.title=`${i+2} October 2026`;
+progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+progressCircle.style.strokeDashoffset = circumference;
+
+for (let i = 0; i < total; i++) {
+  const c = document.createElement("div");
+  c.className = "day";
+  c.title = `${i + 2} October 2026`;
   days.appendChild(c);
 }
 
-function update(){
-  const now=new Date();
-  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  let elapsed=Math.floor((today-start)/86400000)+1;
-  elapsed=Math.max(0,Math.min(total,elapsed));
-  const remaining=total-elapsed;
+function update() {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let elapsed = Math.floor((today - start) / 86400000) + 1;
+  elapsed = Math.max(0, Math.min(total, elapsed));
+  const remaining = total - elapsed;
 
-  [...days.children].forEach((c,i)=>{
-    c.classList.toggle("done",i<elapsed);
+  [...days.children].forEach((c, i) => {
+    c.classList.toggle("done", i < elapsed);
   });
 
-  percent.textContent=Math.round((elapsed/total)*100)+"%";
-  left.textContent=remaining===1?"1 day left":`${remaining} days left`;
+  left.textContent = remaining === 1 ? "1 day left" : `${remaining} days left`;
+
+  const percentValue = Math.round((elapsed / total) * 100);
+  progressPercent.textContent = percentValue + "%";
+  progressPercent.style.color = percentValue < 50 ? "#eee" : "#444";
+
+  progressCircle.style.strokeDashoffset = circumference * (1 - percentValue / 100);
+
+  const presentText = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  presentEl.textContent = `(${presentText})`;
 }
+
 update();
-setInterval(update,60000);
+setInterval(update, 60000);
 </script>
 </body>
 </html>
