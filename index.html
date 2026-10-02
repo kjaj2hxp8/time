@@ -2,160 +2,82 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>175+ Target Countdown</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Countdown</title>
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
-    }
-
-    body {
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #0b0b0f;
-        color: white;
-        text-align: center;
-    }
-
-    .container {
-        padding: 40px;
-        border-radius: 20px;
-        background: #15151d;
-        box-shadow: 0 0 30px rgba(255,255,255,0.1);
-    }
-
-    h1 {
-        font-size: 3rem;
-        margin-bottom: 10px;
-    }
-
-    h2 {
-        color: #aaa;
-        margin-bottom: 30px;
-    }
-
-    .timer {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .box {
-        background: #22222d;
-        padding: 20px;
-        border-radius: 12px;
-        min-width: 100px;
-    }
-
-    .number {
-        font-size: 3rem;
-        font-weight: bold;
-    }
-
-    .label {
-        color: #aaa;
-        margin-top: 5px;
-    }
-
-    .quote {
-        margin-top: 30px;
-        color: #ddd;
-        font-style: italic;
-        font-size: 1.2rem;
-    }
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;
+  background:#090909;color:#eee;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-weight:300;
+}
+body{display:grid;place-items:center}
+.wrap{text-align:center}
+.date{
+  margin-bottom:24px;
+  font-size:13px;
+  color:#777;
+  letter-spacing:.04em;
+}
+.date span{
+  color:#eee;
+}
+.days{display:flex;gap:10px;justify-content:center}
+.day{
+  width:28px;height:28px;border-radius:50%;
+  border:1px solid #444;background:transparent
+}
+.day.done{background:#eee;border-color:#eee}
+.info{
+  margin-top:22px;
+  font-size:14px;
+  font-weight:300;
+  letter-spacing:.02em;
+  color:#888;
+}
+.info span{color:#eee}
 </style>
-
 </head>
-
 <body>
-
-<div class="container">
-
-    <h1>175+ TARGET</h1>
-    <h2>Deadline: 20 August 2026</h2>
-
-    <div class="timer">
-
-        <div class="box">
-            <div class="number" id="days">0</div>
-            <div class="label">Days</div>
-        </div>
-
-        <div class="box">
-            <div class="number" id="hours">0</div>
-            <div class="label">Hours</div>
-        </div>
-
-        <div class="box">
-            <div class="number" id="minutes">0</div>
-            <div class="label">Minutes</div>
-        </div>
-
-        <div class="box">
-            <div class="number" id="seconds">0</div>
-            <div class="label">Seconds</div>
-        </div>
-
-    </div>
-
-    <p class="quote">
-        "175+ or nothing. Every second counts."
-    </p>
-
-</div>
-
+<main class="wrap">
+  <div class="date">2 Oct 2026 — 11 Oct 2026 <span id="present"> — 2 Oct 2026</span></div>
+  <div class="days" id="days"></div>
+  <div class="info">
+    <span id="percent">10%</span> · <span id="left">9 days left</span>
+  </div>
+</main>
 
 <script>
+const start = new Date(2026,9,2);
+const total = 10;
+const days = document.getElementById("days");
+const percent = document.getElementById("percent");
+const left = document.getElementById("left");
 
-const deadline = new Date("August 20, 2026 23:59:59").getTime();
-
-function updateTimer() {
-
-    const now = new Date().getTime();
-    const distance = deadline - now;
-
-    if (distance <= 0) {
-        document.querySelector(".timer").innerHTML = "DEADLINE REACHED";
-        return;
-    }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-
-    const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) /
-        (1000 * 60 * 60)
-    );
-
-    const minutes = Math.floor(
-        (distance % (1000 * 60 * 60)) /
-        (1000 * 60)
-    );
-
-    const seconds = Math.floor(
-        (distance % (1000 * 60)) /
-        1000
-    );
-
-
-    document.getElementById("days").innerHTML = days;
-    document.getElementById("hours").innerHTML = hours;
-    document.getElementById("minutes").innerHTML = minutes;
-    document.getElementById("seconds").innerHTML = seconds;
-
+for(let i=0;i<total;i++){
+  const c=document.createElement("div");
+  c.className="day";
+  c.title=`${i+2} October 2026`;
+  days.appendChild(c);
 }
 
+function update(){
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  let elapsed=Math.floor((today-start)/86400000)+1;
+  elapsed=Math.max(0,Math.min(total,elapsed));
+  const remaining=total-elapsed;
 
-setInterval(updateTimer, 1000);
-updateTimer();
+  [...days.children].forEach((c,i)=>{
+    c.classList.toggle("done",i<elapsed);
+  });
 
+  percent.textContent=Math.round((elapsed/total)*100)+"%";
+  left.textContent=remaining===1?"1 day left":`${remaining} days left`;
+}
+update();
+setInterval(update,60000);
 </script>
-
 </body>
 </html>
